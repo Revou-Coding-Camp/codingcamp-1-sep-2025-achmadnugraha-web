@@ -1,0 +1,103 @@
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/TodoServlet")
+public class TodoServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    private List<Todo> todos = new ArrayList<>();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        if ("add".equals(action)) {
+            String task = request.getParameter("task");
+            String date = request.getParameter("date");
+            if (task != null && date != null) {
+                todos.add(new Todo(task, date));
+            }
+        } else if ("delete".equals(action)) {
+            String indexStr = request.getParameter("index");
+            if (indexStr != null) {
+                int index = Integer.parseInt(indexStr);
+                if (index >= 0 && index < todos.size()) {
+                    todos.remove(index);
+                }
+            }
+        }
+        displayTodos(response, null);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        String filterDate = request.getParameter("filterDate");
+        displayTodos(response, filterDate);
+    }
+
+    private void displayTodos(HttpServletResponse response, String filterDate) throws IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        out.println("<!DOCTYPE html>");
+        out.println("<html><head><title>To-Do List</title>");
+        out.println("<link rel='stylesheet' href='style.css'></head><body>");
+        out.println("<div class='container'>");
+        out.println("<h2>📌 To-Do List</h2>");
+
+        // Form tambah
+        out.println("<form action='TodoServlet' method='post'>");
+        out.println("<input type='hidden' name='action' value='add'>");
+        out.println("<label>To-Do:</label><input type='text' name='task' required>");
+        out.println("<label>Tanggal:</label><input type='date' name='date' required>");
+        out.println("<button type='submit'>Tambah</button>");
+        out.println("</form>");
+
+        // Filter
+        out.println("<h3>Filter by Date</h3>");
+        out.println("<form action='TodoServlet' method='get'>");
+        out.println("<label>Tanggal:</label><input type='date' name='filterDate'>");
+        out.println("<button type='submit'>Filter</button>");
+        out.println("</form>");
+
+        // Daftar To-Do
+        out.println("<h3>Daftar To-Do</h3>");
+        for (int i = 0; i < todos.size(); i++) {
+            Todo t = todos.get(i);
+            if (filterDate == null || filterDate.isEmpty() || filterDate.equals(t.getDate())) {
+                out.println("<div class='todo-item'>");
+                out.println("<span>" + t.getTask() + " (" + t.getDate() + ")</span>");
+                out.println("<form style='margin:0' action='TodoServlet' method='post'>");
+                out.println("<input type='hidden' name='action' value='delete'>");
+                out.println("<input type='hidden' name='index' value='" + i + "'>");
+                out.println("<button type='submit'>Hapus</button>");
+                out.println("</form>");
+                out.println("</div>");
+            }
+        }
+
+        out.println("</div></body></html>");
+    }
+
+    // Inner class Todo
+    class Todo {
+        private String task;
+        private String date;
+
+        public Todo(String task, String date) {
+            this.task = task;
+            this.date = date;
+        }
+
+        public String getTask() { return task; }
+        public String getDate() { return date; }
+    }
+}

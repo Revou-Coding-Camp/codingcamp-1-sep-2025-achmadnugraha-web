@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>📌 To-Do List</h2>
+    <form action="TodoServlet" method="post">
+      <input type="hidden" name="action" value="add">
+      <label for="task">To-Do:</label>
+      <input type="text" id="task" name="task" required>
+
+      <label for="date">Tanggal:</label>
+      <input type="date" id="date" name="date" required>
+
+      <button type="submit">Tambah</button>
+    </form>
+
+    <h3>Filter by Date</h3>
+    <form action="TodoServlet" method="get">
+      <label for="filterDate">Tanggal:</label>
+      <input type="date" id="filterDate" name="filterDate">
+      <button type="submit">Filter</button>
+    </form>
+
+    <h3>Daftar To-Do</h3>
+    <div id="todoList">
+      <!-- Daftar ditampilkan dari Servlet -->
+    </div>
+  </div>
+</body>
+</html>
